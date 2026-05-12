@@ -1,0 +1,82 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Dashboard — KoloCircle</title><meta name="description" content="Your KoloCircle dashboard">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="../css/styles.css"></head><body>
+<div class="dash">
+<aside class="sidebar">
+  <a href="index.html" class="brand"><span class="brand-mark"><span>KC</span></span> KoloCircle</a>
+  <ul class="side-nav">
+    <li><a href="dashboard.html" class="active"><span class="ic"><i class="fa-solid fa-grid-2"></i></span> Overview</a></li>
+    <li><a href="wallet.html" class=""><span class="ic"><i class="fa-solid fa-wallet"></i></span> Wallet</a></li>
+    <li><a href="groups.html" class=""><span class="ic"><i class="fa-solid fa-users"></i></span> My Groups</a></li>
+    <li><a href="transactions.html" class=""><span class="ic"><i class="fa-solid fa-arrow-right-arrow-left"></i></span> Transactions</a></li>
+    <li><a href="#" class=""><span class="ic"><i class="fa-solid fa-shield-halved"></i></span> Verification</a></li>
+    <li><a href="blog.html"><span class="ic"><i class="fa-solid fa-newspaper"></i></span> Blog</a></li>
+    <li><a href="index.html"><span class="ic"><i class="fa-solid fa-arrow-right-from-bracket"></i></span> Sign out</a></li>
+  </ul>
+  <div class="side-foot">
+    <strong>Need help?</strong>
+    Chat with our team in English, French or Pidgin — 24/7.
+  </div>
+</aside>
+<main class="dash-main">
+  
+<div class="dash-topbar">
+  <div>
+    <h1>Welcome back, Eric 👋</h1>
+    <div class="sub">Here's what's happening across your Njangi circles today.</div>
+  </div>
+  <div class="search"><i class="fa-solid fa-magnifying-glass" style="color:var(--muted)"></i><input placeholder="Search circles, transactions..." /></div>
+  <div class="profile-chip"><div class="av">NE</div><div><div style="font-size:.85rem;font-weight:600">Ngwa Eric</div><div style="font-size:.72rem;color:var(--muted)">Buea, SW</div></div></div>
+</div>
+  <div class="banner">
+    <div><h4><i class="fa-solid fa-circle-exclamation" style="color:var(--gold)"></i> Complete your KYC</h4><small>Upload your CNI and complete the face scan to unlock higher contribution limits.</small></div>
+    <a href="#" class="btn btn-dark btn-sm">Verify now <i class="fa-solid fa-arrow-right"></i></a>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="label">Wallet balance</div><div class="v" data-balance>XAF 1,245,500</div><div class="delta">+ XAF 32,000 this week</div></div>
+    <div class="kpi gold"><div class="label">Next payout</div><div class="v">XAF 480,000</div><div class="delta" style="color:var(--navy-700)">In 12 days · Family Njangi</div></div>
+    <div class="kpi"><div class="label">Active circles</div><div class="v">4</div><div class="delta">2 weekly · 2 monthly</div></div>
+    <div class="kpi dark"><div class="label">Credit score</div><div class="v">782</div><div class="delta" style="color:var(--gold)">Excellent</div></div>
+  </div>
+
+  <div class="split-2">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <h3>Contributions vs Payouts</h3>
+        <div style="font-size:.82rem;color:var(--muted)">Last 8 cycles</div>
+      </div>
+      <div class="bars">
+        <div class="bar"><div class="col"><span class="a" style="height:40%"></span><span class="b" style="height:60%"></span></div><small>C1</small></div><div class="bar"><div class="col"><span class="a" style="height:55%"></span><span class="b" style="height:30%"></span></div><small>C2</small></div><div class="bar"><div class="col"><span class="a" style="height:70%"></span><span class="b" style="height:45%"></span></div><small>C3</small></div><div class="bar"><div class="col"><span class="a" style="height:35%"></span><span class="b" style="height:80%"></span></div><small>C4</small></div><div class="bar"><div class="col"><span class="a" style="height:60%"></span><span class="b" style="height:50%"></span></div><small>C5</small></div><div class="bar"><div class="col"><span class="a" style="height:80%"></span><span class="b" style="height:30%"></span></div><small>C6</small></div><div class="bar"><div class="col"><span class="a" style="height:50%"></span><span class="b" style="height:70%"></span></div><small>C7</small></div><div class="bar"><div class="col"><span class="a" style="height:75%"></span><span class="b" style="height:90%"></span></div><small>C8</small></div>
+      </div>
+      <div class="legend"><span><i class="a"></i>Contributed</span><span><i class="b"></i>Received</span></div>
+    </div>
+    <div class="card">
+      <h3>Upcoming activity</h3>
+      <div style="margin-top:16px">
+        <div style="padding:14px 0;border-bottom:1px solid var(--line)"><strong style="color:var(--navy);font-family:Space Grotesk,sans-serif">Family Njangi</strong><div style="font-size:.85rem;color:var(--muted)">Contribution due — XAF 40,000 · in 3 days</div></div>
+        <div style="padding:14px 0;border-bottom:1px solid var(--line)"><strong style="color:var(--navy);font-family:Space Grotesk,sans-serif">Buea Traders Circle</strong><div style="font-size:.85rem;color:var(--muted)">Payout day — XAF 480,000 · in 12 days</div></div>
+        <div style="padding:14px 0"><strong style="color:var(--navy);font-family:Space Grotesk,sans-serif">Tech Bros Njangi</strong><div style="font-size:.85rem;color:var(--muted)">Cycle ends · in 22 days</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3>Recent transactions</h3><a href="transactions.html" style="color:var(--navy);font-weight:600;font-size:.88rem">View all <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+    <table class="table">
+      <thead><tr><th>Date</th><th>Description</th><th>Method</th><th>Status</th><th style="text-align:right">Amount</th></tr></thead>
+      <tbody>
+        <tr><td>11 May 2026</td><td>Contribution — Family Njangi</td><td>MTN MoMo</td><td><span class="badge ok">Successful</span></td><td style="text-align:right" class="amt-neg">– XAF 40,000</td></tr>
+        <tr><td>09 May 2026</td><td>Wallet top-up</td><td>UBA card</td><td><span class="badge ok">Successful</span></td><td style="text-align:right" class="amt-pos">+ XAF 100,000</td></tr>
+        <tr><td>02 May 2026</td><td>Payout received — Tech Bros</td><td>KoloCircle</td><td><span class="badge ok">Received</span></td><td style="text-align:right" class="amt-pos">+ XAF 320,000</td></tr>
+        <tr><td>28 Apr 2026</td><td>Contribution — Buea Traders</td><td>Orange Money</td><td><span class="badge pending">Pending</span></td><td style="text-align:right" class="amt-neg">– XAF 25,000</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main></div>
+<script src="js/app.js"></script></body></html>

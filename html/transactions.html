@@ -1,0 +1,54 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Transactions — KoloCircle</title><meta name="description" content="Your KoloCircle transactions">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="../css/styles.css"></head><body>
+<div class="dash">
+<aside class="sidebar">
+  <a href="index.html" class="brand"><span class="brand-mark"><span>KC</span></span> KoloCircle</a>
+  <ul class="side-nav">
+    <li><a href="dashboard.html" class=""><span class="ic"><i class="fa-solid fa-grid-2"></i></span> Overview</a></li>
+    <li><a href="wallet.html" class=""><span class="ic"><i class="fa-solid fa-wallet"></i></span> Wallet</a></li>
+    <li><a href="groups.html" class=""><span class="ic"><i class="fa-solid fa-users"></i></span> My Groups</a></li>
+    <li><a href="transactions.html" class="active"><span class="ic"><i class="fa-solid fa-arrow-right-arrow-left"></i></span> Transactions</a></li>
+    <li><a href="#" class=""><span class="ic"><i class="fa-solid fa-shield-halved"></i></span> Verification</a></li>
+    <li><a href="blog.html"><span class="ic"><i class="fa-solid fa-newspaper"></i></span> Blog</a></li>
+    <li><a href="index.html"><span class="ic"><i class="fa-solid fa-arrow-right-from-bracket"></i></span> Sign out</a></li>
+  </ul>
+  <div class="side-foot">
+    <strong>Need help?</strong>
+    Chat with our team in English, French or Pidgin — 24/7.
+  </div>
+</aside>
+<main class="dash-main">
+  
+<div class="dash-topbar">
+  <div>
+    <h1>Transactions</h1>
+    <div class="sub">Every contribution, top-up and payout — in one place.</div>
+  </div>
+  <div class="search"><i class="fa-solid fa-magnifying-glass" style="color:var(--muted)"></i><input placeholder="Search circles, transactions..." /></div>
+  <div class="profile-chip"><div class="av">NE</div><div><div style="font-size:.85rem;font-weight:600">Ngwa Eric</div><div style="font-size:.72rem;color:var(--muted)">Buea, SW</div></div></div>
+</div>
+  <div class="card" style="margin-bottom:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:18px 22px">
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-outline btn-sm">All</button>
+      <button class="btn btn-outline btn-sm">Top-ups</button>
+      <button class="btn btn-outline btn-sm">Contributions</button>
+      <button class="btn btn-outline btn-sm">Payouts</button>
+      <button class="btn btn-outline btn-sm">Withdrawals</button>
+    </div>
+    <button class="btn btn-dark btn-sm"><i class="fa-solid fa-download"></i> Export CSV</button>
+  </div>
+  <div class="card">
+    <table class="table">
+      <thead><tr><th>Date</th><th>Description</th><th>Method</th><th>Type</th><th>Status</th><th style="text-align:right">Amount</th></tr></thead>
+      <tbody>
+        <tr><td>11 May 2026</td><td>Contribution — Family Njangi</td><td>MTN MoMo</td><td>Contribution</td><td><span class="badge ok">Successful</span></td><td style="text-align:right" class="amt-neg">– XAF 40,000</td></tr><tr><td>09 May 2026</td><td>Wallet top-up</td><td>UBA card</td><td>Top-up</td><td><span class="badge ok">Successful</span></td><td style="text-align:right" class="amt-pos">+ XAF 100,000</td></tr><tr><td>08 May 2026</td><td>Contribution — Buea Traders</td><td>Orange Money</td><td>Contribution</td><td><span class="badge ok">Successful</span></td><td style="text-align:right" class="amt-neg">– XAF 25,000</td></tr><tr><td>02 May 2026</td><td>Payout received — Tech Bros</td><td>KoloCircle</td><td>Payout</td><td><span class="badge ok">Received</span></td><td style="text-align:right" class="amt-pos">+ XAF 320,000</td></tr><tr><td>28 Apr 2026</td><td>Contribution — Diaspora Sisters</td><td>Afriland</td><td>Contribution</td><td><span class="badge pending">Pending</span></td><td style="text-align:right" class="amt-neg">– XAF 200,000</td></tr><tr><td>22 Apr 2026</td><td>Withdrawal to MoMo</td><td>MTN MoMo</td><td>Withdrawal</td><td><span class="badge ok">Successful</span></td><td style="text-align:right" class="amt-neg">– XAF 150,000</td></tr><tr><td>18 Apr 2026</td><td>Wallet top-up</td><td>NFC Bank</td><td>Top-up</td><td><span class="badge ok">Successful</span></td><td style="text-align:right" class="amt-pos">+ XAF 200,000</td></tr><tr><td>12 Apr 2026</td><td>Contribution — Family Njangi</td><td>MTN MoMo</td><td>Contribution</td><td><span class="badge fail">Failed</span></td><td style="text-align:right" class="amt-neg">– XAF 40,000</td></tr><tr><td>08 Apr 2026</td><td>Contribution — Family Njangi</td><td>MTN MoMo</td><td>Contribution</td><td><span class="badge ok">Successful</span></td><td style="text-align:right" class="amt-neg">– XAF 40,000</td></tr><tr><td>05 Apr 2026</td><td>Loyalty reward</td><td>KoloPoints</td><td>Reward</td><td><span class="badge ok">Credited</span></td><td style="text-align:right" class="amt-pos">+ XAF 2,500</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main></div>
+<script src="js/app.js"></script></body></html>
