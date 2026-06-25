@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Identity Verification - KoloCircle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="../css/verify.css" />
+</head>
+<body>
+  <div class="verification-container">
+    <!-- Header -->
+    <header class="verification-header">
+      <div class="header-content">
+        <a href="dashboard.html" class="logo">
+          <div class="logo-mark">
+            <i class="ti ti-circles-relation"></i>
+          </div>
+          <span>KoloCircle</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar-container">
+      <div class="progress-bar">
+        <div class="step-item" data-step="1">
+          <div class="step-circle">
+            <span class="step-number">1</span>
+            <i class="ti ti-check checkmark"></i>
+          </div>
+          <span class="step-label">Phone</span>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step-item" data-step="2">
+          <div class="step-circle">
+            <span class="step-number">2</span>
+            <i class="ti ti-check checkmark"></i>
+          </div>
+          <span class="step-label">Identity</span>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step-item" data-step="3">
+          <div class="step-circle">
+            <span class="step-number">3</span>
+            <i class="ti ti-check checkmark"></i>
+          </div>
+          <span class="step-label">Guarantor</span>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step-item" data-step="4">
+          <div class="step-circle">
+            <span class="step-number">4</span>
+            <i class="ti ti-check checkmark"></i>
+          </div>
+          <span class="step-label">Deposit</span>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step-item" data-step="5">
+          <div class="step-circle">
+            <span class="step-number">5</span>
+            <i class="ti ti-check checkmark"></i>
+          </div>
+          <span class="step-label">Agreement</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trust Score Bar -->
+    <div class="trust-score-container">
+      <div class="trust-score-bar">
+        <div class="trust-score-fill" id="trustScoreFill"></div>
+      </div>
+      <div class="trust-score-text">
+        <span id="trustScoreValue">0</span> / 100
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="verification-main">
+      <!-- Step 1: Phone Verification -->
+      <section class="step" data-step="1">
+        <div class="card">
+          <div class="card-header">
+            <div class="icon-box icon-amber">
+              <i class="ti ti-phone"></i>
+            </div>
+            <div class="header-text">
+              <h3>Phone Verification</h3>
+              <p>Verify your mobile number</p>
+            </div>
+          </div>
+
+          <form id="phoneForm" class="form">
+            <div class="field">
+              <label for="operator">Mobile Operator</label>
+              <select id="operator" name="operator" required>
+                <option value="">Select operator</option>
+                <option value="MTN">MTN MoMo</option>
+                <option value="Orange">Orange Money</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="phone">Phone Number</label>
+              <input 
+                id="phone" 
+                name="phone" 
+                type="tel" 
+                placeholder="6XX XXX XXX"
+                pattern="[0-9\s]{11}"
+                required
+              />
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="sendOtpBtn">
+              Send OTP
+            </button>
+          </form>
+
+          <!-- OTP Section (hidden initially) -->
+          <div id="otpSection" class="otp-section" style="display: none;">
+            <div class="alert alert-success">
+              <i class="ti ti-check"></i>
+              <span>OTP sent to your phone</span>
+            </div>
+
+            <form id="otpForm" class="form">
+              <label>Enter OTP (6 digits)</label>
+              <div class="otp-inputs">
+                <input class="otp-digit" type="number" min="0" max="9" inputmode="numeric" pattern="[0-9]" maxlength="1" placeholder="0" />
+                <input class="otp-digit" type="number" min="0" max="9" inputmode="numeric" pattern="[0-9]" maxlength="1" placeholder="0" />
+                <input class="otp-digit" type="number" min="0" max="9" inputmode="numeric" pattern="[0-9]" maxlength="1" placeholder="0" />
+                <input class="otp-digit" type="number" min="0" max="9" inputmode="numeric" pattern="[0-9]" maxlength="1" placeholder="0" />
+                <input class="otp-digit" type="number" min="0" max="9" inputmode="numeric" pattern="[0-9]" maxlength="1" placeholder="0" />
+                <input class="otp-digit" type="number" min="0" max="9" inputmode="numeric" pattern="[0-9]" maxlength="1" placeholder="0" />
+              </div>
+
+              <button type="submit" class="btn btn-primary" id="verifyOtpBtn">
+                Verify Phone
+              </button>
+              <button type="button" class="btn btn-ghost" id="resendOtpBtn">
+                Resend OTP
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div class="step-navigation">
+          <button type="button" class="btn btn-ghost" disabled>Back</button>
+        </div>
+      </section>
+
+      <!-- Step 2: Personal Identity -->
+      <section class="step" data-step="2" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="icon-box icon-purple">
+              <i class="ti ti-user"></i>
+            </div>
+            <div class="header-text">
+              <h3>Personal Identity</h3>
+              <p>Your details and documents</p>
+            </div>
+          </div>
+
+          <form id="personalDetailsForm" class="form">
+            <!-- Section A: Personal Details -->
+            <div class="form-section">
+              <h4 class="section-label">YOUR DETAILS</h4>
+
+              <div class="field">
+                <label for="fullName">Full Name</label>
+                <input 
+                  id="fullName" 
+                  name="fullName" 
+                  type="text" 
+                  placeholder="As it appears on your CNI"
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <label for="dateOfBirth">Date of Birth</label>
+                <input 
+                  id="dateOfBirth" 
+                  name="dateOfBirth" 
+                  type="date" 
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <label for="gender">Gender</label>
+                <select id="gender" name="gender" required>
+                  <option value="">Select gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="cniNumber">CNI / Passport Number</label>
+                <input 
+                  id="cniNumber" 
+                  name="cniNumber" 
+                  type="text" 
+                  placeholder="e.g., 12345678901"
+                  pattern="[0-9]{11}"
+                  title="CNI must be 11 digits"
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <label for="region">Region of Origin</label>
+                <select id="region" name="region" required>
+                  <option value="">Select region</option>
+                  <option value="Adamawa">Adamawa</option>
+                  <option value="Centre">Centre</option>
+                  <option value="East">East</option>
+                  <option value="Far North">Far North</option>
+                  <option value="Littoral">Littoral</option>
+                  <option value="North">North</option>
+                  <option value="North West">North West</option>
+                  <option value="South">South</option>
+                  <option value="South West">South West</option>
+                  <option value="West">West</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Section B: Document Photos -->
+            <div class="form-section">
+              <h4 class="section-label">DOCUMENT PHOTOS</h4>
+
+              <div class="upload-box" id="cniFrontUpload">
+                <div class="upload-content">
+                  <i class="ti ti-camera"></i>
+                  <p>CNI Front</p>
+                  <small>JPG or PNG, max 5MB</small>
+                </div>
+                <input type="file" name="cni_front" accept="image/jpeg,image/png" hidden />
+                <div class="upload-preview" style="display: none;"></div>
+              </div>
+
+              <div class="upload-box" id="cniBackUpload">
+                <div class="upload-content">
+                  <i class="ti ti-camera"></i>
+                  <p>CNI Back</p>
+                  <small>JPG or PNG, max 5MB</small>
+                </div>
+                <input type="file" name="cni_back" accept="image/jpeg,image/png" hidden />
+                <div class="upload-preview" style="display: none;"></div>
+              </div>
+
+              <div class="upload-box" id="selfieUpload">
+                <div class="upload-content">
+                  <i class="ti ti-user-check"></i>
+                  <p>Selfie with CNI</p>
+                  <small>Your face and CNI must both be visible</small>
+                </div>
+                <input type="file" name="selfie" accept="image/jpeg,image/png" hidden />
+                <div class="upload-preview" style="display: none;"></div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Save & Continue
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="step-navigation">
+          <button type="button" class="btn btn-ghost">Back</button>
+          <button type="button" class="btn btn-primary" disabled>Continue</button>
+        </div>
+      </section>
+
+      <!-- Step 3: Guarantor -->
+      <section class="step" data-step="3" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="icon-box icon-purple">
+              <i class="ti ti-shield-check"></i>
+            </div>
+            <div class="header-text">
+              <h3>Your Guarantor</h3>
+              <p>Who will guarantee your membership?</p>
+            </div>
+          </div>
+
+          <!-- Eligibility Rules -->
+          <div class="info-card">
+            <h4>Guarantor Eligibility</h4>
+            <ul class="eligibility-list">
+              <li><i class="ti ti-check"></i> Must be aged 25 or older</li>
+              <li><i class="ti ti-check"></i> Must have a verified KoloCircle account with trust score above 60</li>
+              <li><i class="ti ti-check"></i> Must not already be guaranteeing 3 or more other members</li>
+              <li><i class="ti ti-check"></i> Must be a parent, employer, community elder, church/mosque leader, teacher, or senior family friend — not a spouse or sibling</li>
+              <li><i class="ti ti-check"></i> Must actively confirm via SMS or in-app within 48 hours</li>
+            </ul>
+          </div>
+
+          <form id="guarantorForm" class="form">
+            <div class="form-section">
+              <h4 class="section-label">GUARANTOR DETAILS</h4>
+
+              <div class="field">
+                <label for="guarantorName">Full Name</label>
+                <input 
+                  id="guarantorName" 
+                  name="guarantorName" 
+                  type="text" 
+                  placeholder="Their full name"
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <label for="relationship">Relationship</label>
+                <select id="relationship" name="relationship" required>
+                  <option value="">Select relationship</option>
+                  <option value="Parent">Parent</option>
+                  <option value="Employer">Employer</option>
+                  <option value="Community elder">Community elder</option>
+                  <option value="Church or mosque leader">Church or mosque leader</option>
+                  <option value="Teacher or lecturer">Teacher or lecturer</option>
+                  <option value="Family friend (senior)">Family friend (senior)</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="guarantorAge">Age</label>
+                <input 
+                  id="guarantorAge" 
+                  name="guarantorAge" 
+                  type="number" 
+                  min="25"
+                  placeholder="Must be 25+"
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <label for="guarantorPhone">Phone or Username</label>
+                <div class="input-group">
+                  <select id="guarantorPhonePrefix" name="guarantorPhonePrefix">
+                    <option value="MTN">MTN</option>
+                    <option value="Orange">Orange</option>
+                    <option value="@">@username</option>
+                  </select>
+                  <input 
+                    id="guarantorPhone" 
+                    name="guarantorPhone" 
+                    type="text" 
+                    placeholder="XXX XXX XXX or username"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="guarantorCNI">Guarantor CNI Number</label>
+                <input 
+                  id="guarantorCNI" 
+                  name="guarantorCNI" 
+                  type="text" 
+                  placeholder="e.g., 12345678901"
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <label for="guarantorTown">Town / Quarter of Residence</label>
+                <input 
+                  id="guarantorTown" 
+                  name="guarantorTown" 
+                  type="text" 
+                  placeholder="Where they live"
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <label for="guarantorReason">Why did you choose this person?</label>
+                <textarea 
+                  id="guarantorReason" 
+                  name="guarantorReason" 
+                  placeholder="Explain your relationship and why they are trustworthy (min 30 characters)"
+                  minlength="30"
+                  required
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- Guarantor Preview Card -->
+            <div class="guarantor-preview-card" style="display: none;">
+              <div class="avatar-large">
+                <span id="avatarInitials"></span>
+              </div>
+              <div class="preview-text">
+                <h5 id="previewName">-</h5>
+                <p id="previewRelation">-</p>
+              </div>
+              <span class="badge badge-amber">Awaiting confirmation</span>
+            </div>
+
+            <!-- Liability Notice -->
+            <div class="alert alert-red">
+              <h4>Guarantor Liability</h4>
+              <ol class="liability-list">
+                <li>They will be contacted within 48 hours of any missed contribution after payout</li>
+                <li>They may be required to cover your outstanding balance</li>
+                <li>Repeated failures may affect their own trust score</li>
+                <li>Their name and CNI are visible to group admins on request</li>
+              </ol>
+            </div>
+
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="guarantorInformed" name="guarantorInformed" required />
+                <span>I have informed my guarantor of these responsibilities and they have agreed.</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="guarantorAccurate" name="guarantorAccurate" required />
+                <span>I confirm all guarantor information is accurate. False details will suspend my account.</span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+              Send Confirmation Request
+            </button>
+          </form>
+        </div>
+
+        <div class="step-navigation">
+          <button type="button" class="btn btn-ghost">Back</button>
+          <button type="button" class="btn btn-primary" disabled>Continue</button>
+        </div>
+      </section>
+
+      <!-- Step 4: Security Deposit -->
+      <section class="step" data-step="4" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="icon-box icon-amber">
+              <i class="ti ti-wallet"></i>
+            </div>
+            <div class="header-text">
+              <h3>Security Deposit</h3>
+              <p>Secure your membership</p>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <p>This deposit is fully refundable after your first completed contribution cycle. It protects the group from defaults.</p>
+          </div>
+
+          <form id="depositForm" class="form">
+            <div class="amount-display">
+              <span class="amount-label">Amount</span>
+              <span class="amount-value">5 000 XAF</span>
+              <span class="amount-sublabel">Paid via MTN MoMo or Orange Money · fully refundable</span>
+            </div>
+
+            <div class="field">
+              <label for="depositPhone">Payment Method</label>
+              <input 
+                id="depositPhone" 
+                name="depositPhone" 
+                type="tel" 
+                placeholder="Your verified phone number"
+                disabled
+              />
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="payDepositBtn">
+              Pay 5 000 XAF
+            </button>
+          </form>
+
+          <!-- Payment Processing -->
+          <div id="paymentProcessing" class="payment-processing" style="display: none;">
+            <div class="spinner"></div>
+            <p>A MoMo prompt has been sent to your phone...</p>
+            <p class="payment-subtitle">Check your phone and enter your PIN to complete the payment</p>
+            <div class="timer" id="paymentTimer">Waiting... <span id="attempts">0</span>/10</div>
+          </div>
+
+          <!-- Payment Result -->
+          <div id="paymentResult" class="payment-result" style="display: none;"></div>
+        </div>
+
+        <div class="step-navigation">
+          <button type="button" class="btn btn-ghost">Back</button>
+          <button type="button" class="btn btn-primary" disabled>Continue</button>
+        </div>
+      </section>
+
+      <!-- Step 5: Agreement -->
+      <section class="step" data-step="5" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="icon-box icon-teal">
+              <i class="ti ti-file-check"></i>
+            </div>
+            <div class="header-text">
+              <h3>Platform Agreement</h3>
+              <p>Final verification before submission</p>
+            </div>
+          </div>
+
+          <form id="agreementForm" class="form">
+            <!-- Agreement Terms -->
+            <div class="info-card">
+              <h4>You agree to:</h4>
+              <ol class="agreement-list">
+                <li>KoloCircle may use your identity data to contact your guarantor if needed</li>
+                <li>Your security deposit is held as collateral and refunded after a successful cycle</li>
+                <li>Your trust score (not personal details) is visible to group admins</li>
+                <li>Defaults after 14 days are flagged on the platform blacklist</li>
+                <li>Your guarantor can only be changed once per year from your registration date</li>
+              </ol>
+            </div>
+
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="agreeAccuracy" name="agreeAccuracy" required />
+                <span>All information I provided is accurate and matches my official documents.</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="agreeTerms" name="agreeTerms" required />
+                <span>I agree to KoloCircle's contribution obligations, payout rules, and default consequences.</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="agreeGuarantor" name="agreeGuarantor" required />
+                <span>I confirm my guarantor has been informed and has agreed to their role.</span>
+              </label>
+            </div>
+
+            <!-- Guarantor Change Policy (Collapsible) -->
+            <div class="collapsible-card">
+              <button type="button" class="collapsible-header">
+                <span>Guarantor Change Policy</span>
+                <i class="ti ti-chevron-down"></i>
+              </button>
+              <div class="collapsible-content" style="display: none;">
+                <div class="guarantor-change-info">
+                  <!-- Current Guarantor Card -->
+                  <div class="current-guarantor">
+                    <h5>Current Guarantor</h5>
+                    <div class="guarantor-card" id="currentGuarantorCard" style="display: none;">
+                      <div class="card-row">
+                        <div class="avatar-medium">
+                          <span id="currentGuarantorInitials"></span>
+                        </div>
+                        <div class="card-info">
+                          <p id="currentGuarantorName" class="strong">-</p>
+                          <p id="currentGuarantorRelation" class="text-muted">-</p>
+                          <p id="currentGuarantorPhone" class="text-muted">-</p>
+                        </div>
+                        <div class="badge-column">
+                          <span class="badge badge-teal">Active since <span id="activeSinceDate">-</span></span>
+                          <span class="badge badge-teal">Confirmed</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Change Window -->
+                  <div class="change-window">
+                    <div class="window-locked">
+                      <i class="ti ti-lock"></i>
+                      <div class="window-text">
+                        <p class="strong">Next change window</p>
+                        <p id="unlocksAt" class="text-muted">Unlocks on -</p>
+                        <p id="daysLeft" class="highlight">- days remaining</p>
+                      </div>
+                    </div>
+                    <button type="button" class="btn btn-ghost" disabled id="changeGuarantorBtn">
+                      Request guarantor change (locked)
+                    </button>
+                  </div>
+
+                  <!-- Timeline -->
+                  <div class="change-timeline">
+                    <div class="timeline-step completed">
+                      <div class="timeline-circle"></div>
+                      <span>Registration & guarantor assigned</span>
+                    </div>
+                    <div class="timeline-step">
+                      <div class="timeline-circle"></div>
+                      <span>Change window opens</span>
+                    </div>
+                    <div class="timeline-step">
+                      <div class="timeline-circle"></div>
+                      <span>New guarantor confirmation</span>
+                    </div>
+                    <div class="timeline-step">
+                      <div class="timeline-circle"></div>
+                      <span>Previous guarantor released</span>
+                    </div>
+                    <div class="timeline-step">
+                      <div class="timeline-circle"></div>
+                      <span>New 12-month lock begins</span>
+                    </div>
+                  </div>
+
+                  <div class="alert alert-amber">
+                    One change per year — choose wisely. Your guarantor is locked for 12 months from your registration date.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-large">
+              Submit for Verification
+            </button>
+            <p class="submission-note">Review takes 1–2 business days. You will be notified by SMS.</p>
+          </form>
+        </div>
+
+        <div class="step-navigation">
+          <button type="button" class="btn btn-ghost">Back</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/verify.js"></script>
+</body>
+</html>

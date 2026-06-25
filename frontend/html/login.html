@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sign in KoloCircle</title>
+<meta name="description" content="Sign in to your KoloCircle account." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-side">
+    <div>
+      <a href="index.html" class="brand" style="color:#fff"><span class="brand-mark"><span>KC</span></span> KoloCircle</a>
+    </div>
+    <div>
+      <span class="eyebrow"><i class="fa-solid fa-sparkles"></i> Welcome back</span>
+      <h2 style="margin-top:14px">Your circle is waiting.</h2>
+      <p>Sign in to manage your Njangi groups, top-up your wallet and check your next payout.</p>
+    </div>
+    <div style="font-size:.85rem;color:rgba(255,255,255,.55)">© <span data-year></span> KoloCircle Cameroon</div>
+  </div>
+  <div class="auth-form">
+    <h2>LogIn</h2>
+    <p style="color:var(--muted);margin:6px 0 24px">New here? <a href="create.html" style="color:var(--navy);font-weight:600">Create an account</a></p>
+    <form id="loginForm">
+      <div class="field"><label for="login_phone">Phone number</label><input id="login_phone" name="phone" type="tel" placeholder="+237 6XX XXX XXX" required></div>
+      <div class="field"><label for="login_password">Password</label><input id="login_password" name="password" type="password" placeholder="••••••••" required></div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:10px">Sign in <i class="fa-solid fa-arrow-right"></i></button>
+    </form>
+    <div id="loginMessage" style="text-align:center;margin:18px 0;color:var(--muted);font-size:.95rem"></div>
+    <div style="text-align:center;margin:18px 0;color:var(--muted);font-size:.85rem">— or continue with —</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn btn-outline" style="justify-content:center"><i class="fa-solid fa-mobile-screen"></i> MTN MoMo</button>
+      <button class="btn btn-outline" style="justify-content:center"><i class="fa-solid fa-mobile-screen"></i> Orange</button>
+    </div>
+  </div>
+</div>
+<script src="../js/user.js"></script>
+<script>
+  const loginForm = document.getElementById('loginForm');
+  const loginMessage = document.getElementById('loginMessage');
+
+  /**
+   * Handle login form submission
+   */
+  loginForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const phone = document.getElementById('login_phone').value.trim();
+    const password = document.getElementById('login_password').value;
+
+    // Validate input
+    if (!phone) {
+      loginMessage.textContent = 'Please enter your phone number.';
+      loginMessage.style.color = 'var(--danger)';
+      return;
+    }
+
+    if (!password) {
+      loginMessage.textContent = 'Please enter your password.';
+      loginMessage.style.color = 'var(--danger)';
+      return;
+    }
+
+    loginMessage.textContent = 'Verifying your credentials...';
+    loginMessage.style.color = 'var(--muted)';
+
+    // Attempt login
+    const result = await userManager.login(phone, password);
+
+    if (result.success) {
+      const user = result.data.user;
+
+      // Save user to localStorage
+      userManager.saveToLocalStorage(user);
+
+      loginMessage.textContent = result.data.message || 'Login successful! Redirecting to dashboard...';
+      loginMessage.style.color = 'var(--success)';
+
+      // Redirect to dashboard after 800ms
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 800);
+    } else {
+      loginMessage.textContent = result.error || 'Login failed. Please check your credentials and try again.';
+      loginMessage.style.color = 'var(--danger)';
+    }
+  });
+</script>
+<script src="../js/app.js"></script>
+</body></html>

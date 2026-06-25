@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sign in KoloCircle</title>
+<meta name="description" content="Sign in to your KoloCircle account." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-side">
+    <div>
+      <a href="index.html" class="brand" style="color:#fff"><span class="brand-mark"><span>KC</span></span> KoloCircle</a>
+    </div>
+    <div>
+      <span class="eyebrow"><i class="fa-solid fa-sparkles"></i> Welcome back</span>
+      <h2 style="margin-top:14px">Your circle is waiting.</h2>
+      <p>Sign in to manage your Njangi groups, top-up your wallet and check your next payout.</p>
+    </div>
+    <div style="font-size:.85rem;color:rgba(255,255,255,.55)">© <span data-year></span> KoloCircle Cameroon</div>
+  </div>
+  <div class="auth-form">
+    <h2>Create account</h2>
+    <p style="color:var(--muted);margin:6px 0 24px">Already have an account? <a href="login.html" style="color:var(--navy);font-weight:600">Login</a></p>
+    <form id="createForm">
+      <div class="field"><label for="full_name">Full Name</label><input id="full_name" name="full_name" type="text" placeholder="John Doe" required></div>
+      <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" placeholder="john@example.com" required></div>
+      <div class="field"><label for="phone">Phone number</label><input id="phone" name="phone" type="tel" placeholder="+237 6XX XXX XXX" required></div>
+      <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" placeholder="••••••••" required></div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:10px">Create account <i class="fa-solid fa-arrow-right"></i></button>
+    </form>
+    <div id="formMessage" style="text-align:center;margin:18px 0;color:var(--muted);font-size:.95rem"></div>
+    <div style="text-align:center;margin:18px 0;color:var(--muted);font-size:.85rem">— or continue with —</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn btn-outline" style="justify-content:center"><i class="fa-solid fa-mobile-screen"></i> MTN MoMo</button>
+      <button class="btn btn-outline" style="justify-content:center"><i class="fa-solid fa-mobile-screen"></i> Orange</button>
+    </div>
+  </div>
+</div>
+<script src="../js/user.js"></script>
+<script>
+  const createForm = document.getElementById('createForm');
+  const formMessage = document.getElementById('formMessage');
+
+  /**
+   * Validate signup form data
+   */
+  const validateSignupData = ({ full_name, email, phone, password }) => {
+    if (!full_name || full_name.trim().length < 3) {
+      return 'Please enter your full name (at least 3 characters).';
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email.trim())) {
+      return 'Please enter a valid email address.';
+    }
+
+    const phonePattern = /^\+?[0-9]{8,15}$/;
+    if (!phonePattern.test(phone.replace(/\s+/g, ''))) {
+      return 'Please enter a valid phone number (8-15 digits).';
+    }
+
+    if (!password || password.length < 8) {
+      return 'Password must be at least 8 characters long.';
+    }
+
+    return null;
+  };
+
+  /**
+   * Handle form submission
+   */
+  createForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const payload = {
+      full_name: document.getElementById('full_name').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      phone: document.getElementById('phone').value.trim(),
+      password: document.getElementById('password').value
+    };
+
+    // Validate input
+    const validationError = validateSignupData(payload);
+    if (validationError) {
+      formMessage.textContent = validationError;
+      formMessage.style.color = 'var(--danger)';
+      return;
+    }
+
+    formMessage.textContent = 'Creating your account...';
+    formMessage.style.color = 'var(--muted)';
+
+    // Register user
+    const result = await userManager.register(payload);
+
+    if (result.success) {
+      const user = result.data.user || payload;
+      
+      // Save user to localStorage
+      userManager.saveToLocalStorage(user);
+
+      formMessage.textContent = result.data.message || 'Account created successfully! Redirecting to dashboard...';
+      formMessage.style.color = 'var(--success)';
+
+      // Redirect to dashboard after 1 second
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 1000);
+    } else {
+      formMessage.textContent = result.error || 'Failed to create account. Please try again.';
+      formMessage.style.color = 'var(--danger)';
+    }
+  });
+</script>
+<script src="../js/app.js"></script>
+</body></html>
