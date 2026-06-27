@@ -121,9 +121,37 @@ export const getGroupDetails = async (req, res) => {
       }
     }
 
-    // Never leak the raw invite token to people who didn't already have it
+   // Never leak the raw invite token to people who didn't already have it
     const { invite_token, ...safeGroup } = group;
-    res.json({ group: safeGroup });
+    const includeInviteToken = userId && group.creator_id === userId;
+
+    const [memberRows] = await pool.query(
+      `SELECT gm.id AS membership_id, gm.user_id, gm.join_path, gm.member_status, gm.leave_requested,
+              u.full_name, u.phone,
+              cm.payout_order, cm.has_been_paid
+       FROM group_members gm
+       JOIN users u ON u.id = gm.user_id
+       LEFT JOIN cycles c ON c.group_id = ? AND c.status = 'active'
+       LEFT JOIN cycle_members cm ON cm.cycle_id = c.id AND cm.membership_id = gm.id
+       WHERE gm.group_id = ? AND gm.request_status = 'approved'
+       ORDER BY cm.payout_order IS NULL, cm.payout_order ASC, gm.requested_at ASC`,
+      [groupId, groupId]
+    );
+
+    const [activeCycleRows] = await pool.query(
+      `SELECT id, cycle_number, start_date, status FROM cycles WHERE group_id = ? AND status = 'active'`,
+      [groupId]
+    );
+
+    res.json({
+      group: {
+        ...safeGroup,
+        ...(includeInviteToken ? { invite_token: group.invite_token } : {}),
+        is_admin: userId ? group.creator_id === userId : false
+      },
+      members: memberRows,
+      activeCycle: activeCycleRows[0] || null
+    });
   } catch (error) {
     console.error('Error fetching group details:', error);
     res.status(500).json({ error: 'Failed to fetch circle details' });
@@ -445,6 +473,103 @@ export const startCycle = async (req, res) => {
   }
 };
 
+
+export const getMyGroups = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    const [rows] = await pool.query(
+      `SELECT g.id, g.group_name, g.description, g.visibility,
+              g.contribution_amount, g.contribution_frequency,
+              g.max_members, g.group_status,
+              gm.id AS membership_id,
+              (g.creator_id = ?) AS is_admin,
+              (SELECT COUNT(*) FROM group_members gm2
+                 WHERE gm2.group_id = g.id AND gm2.request_status = 'approved' AND gm2.member_status = 'active') AS member_count,
+              cm.payout_order,
+              c.cycle_number
+       FROM group_members gm
+       JOIN njangi_groups g ON gm.group_id = g.id
+       LEFT JOIN cycles c ON c.group_id = g.id AND c.status = 'active'
+       LEFT JOIN cycle_members cm ON cm.cycle_id = c.id AND cm.membership_id = gm.id
+       WHERE gm.user_id = ? AND gm.request_status = 'approved' AND gm.member_status = 'active'
+       ORDER BY g.created_at DESC`,
+      [userId, userId]
+    );
+
+    res.json({ groups: rows });
+  } catch (error) {
+    console.error('Error fetching my groups:', error);
+    res.status(500).json({ error: 'Failed to fetch your circles' });
+  }
+};
+
+export const getMyInvites = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    const [rows] = await pool.query(
+      `SELECT gm.id AS membership_id, g.id AS group_id, g.group_name,
+              g.contribution_amount, g.contribution_frequency, g.creator_id,
+              u.full_name AS invited_by
+       FROM group_members gm
+       JOIN njangi_groups g ON gm.group_id = g.id
+       JOIN users u ON u.id = g.creator_id
+       WHERE gm.user_id = ? AND gm.join_path = 'admin_added' AND gm.request_status = 'pending'
+       ORDER BY gm.requested_at DESC`,
+      [userId]
+    );
+
+    res.json({ invites: rows });
+  } catch (error) {
+    console.error('Error fetching invites:', error);
+    res.status(500).json({ error: 'Failed to fetch invites' });
+  }
+};
+
+export const respondToInvite = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { membershipId } = req.params;
+    const { decision } = req.body; // 'accept' | 'decline'
+
+    if (!['accept', 'decline'].includes(decision)) {
+      return res.status(400).json({ error: 'decision must be "accept" or "decline"' });
+    }
+
+    const [rows] = await pool.query(
+      `SELECT id, user_id, join_path, request_status FROM group_members WHERE id = ?`,
+      [membershipId]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: 'Invite not found' });
+    }
+    const invite = rows[0];
+
+    if (invite.user_id !== userId) {
+      return res.status(403).json({ error: 'This invite does not belong to you' });
+    }
+    if (invite.join_path !== 'admin_added') {
+      return res.status(400).json({ error: 'This is not an admin invite' });
+    }
+    if (invite.request_status !== 'pending') {
+      return res.status(409).json({ error: `This invite has already been ${invite.request_status}` });
+    }
+
+    const newStatus = decision === 'accept' ? 'approved' : 'rejected';
+    await pool.query(
+      `UPDATE group_members SET request_status = ?, approved_at = IF(? = 'approved', NOW(), NULL) WHERE id = ?`,
+      [newStatus, newStatus, membershipId]
+    );
+
+    res.json({ message: `Invite ${newStatus}`, status: newStatus });
+  } catch (error) {
+    console.error('Error responding to invite:', error);
+    res.status(500).json({ error: 'Failed to respond to invite' });
+  }
+};
+
 export default {
   createGroup,
   listPublicGroups,
@@ -453,5 +578,8 @@ export default {
   addMemberDirectly,
   respondToJoinRequest,
   requestToLeave,
-  startCycle
+  startCycle,
+  getMyGroups,
+  getMyInvites,
+  respondToInvite
 };

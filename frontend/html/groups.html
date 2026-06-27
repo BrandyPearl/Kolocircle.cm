@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>My Groups KoloCircle</title><meta name="description" content="Your Njangi circles">
+<title>My Groups · KoloCircle</title><meta name="description" content="Your Njangi circles">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -13,9 +13,9 @@
     <li><a href="wallet.html" class=""><span class="ic"><i class="fa-solid fa-wallet"></i></span> Wallet</a></li>
     <li><a href="groups.html" class="active"><span class="ic"><i class="fa-solid fa-users"></i></span> My Groups</a></li>
     <li><a href="transactions.html" class=""><span class="ic"><i class="fa-solid fa-arrow-right-arrow-left"></i></span> Transactions</a></li>
-    <li><a href="#" class=""><span class="ic"><i class="fa-solid fa-shield-halved"></i></span> Verification</a></li>
+    <li><a href="verification.html" class=""><span class="ic"><i class="fa-solid fa-shield-halved"></i></span> Verification</a></li>
     <li><a href="blog.html"><span class="ic"><i class="fa-solid fa-newspaper"></i></span> Blog</a></li>
-    <li><a href="index.html"><span class="ic"><i class="fa-solid fa-arrow-right-from-bracket"></i></span> Sign out</a></li>
+    <li><a href="#" onclick="logout()"><span class="ic"><i class="fa-solid fa-arrow-right-from-bracket"></i></span> Sign out</a></li>
   </ul>
   <div class="side-foot">
     <strong>Need help?</strong>
@@ -23,44 +23,113 @@
   </div>
 </aside>
 <main class="dash-main">
-  
+
 <div class="dash-topbar">
   <div>
     <h1>My Njangi Groups</h1>
     <div class="sub">Manage circles you organise or have joined.</div>
   </div>
-  <div class="search"><i class="fa-solid fa-magnifying-glass" style="color:var(--muted)"></i><input placeholder="Search circles, transactions..." /></div>
-  <div class="profile-chip"><div class="av">NE</div><div><div style="font-size:.85rem;font-weight:600">Ngwa Eric</div><div style="font-size:.72rem;color:var(--muted)">Buea, SW</div></div></div>
+  <div class="search"><i class="fa-solid fa-magnifying-glass" style="color:var(--muted)"></i><input id="circleSearch" placeholder="Search circles..." /></div>
+  <div class="profile-chip">
+    <div class="av" id="profileInitials">--</div>
+    <div>
+      <div style="font-size:.85rem;font-weight:600" id="welcomeName">Loading…</div>
+      <div style="font-size:.72rem;color:var(--muted)" id="profileLocation"></div>
+    </div>
+  </div>
 </div>
 
   <div data-tabs="g" class="tabs">
     <button class="tab active" data-tab="my">My groups</button>
     <button class="tab" data-tab="discover">Discover</button>
-    <button class="tab" data-tab="invites">Invites <span class="chip gold" style="margin-left:6px">2</span></button>
+    <button class="tab" data-tab="invites">Invites <span class="chip gold" id="inviteCount" style="margin-left:6px;display:none">0</span></button>
   </div>
 
   <div data-pane="g">
     <div data-tab="my">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <h3 style="color:var(--navy);font-family:Space Grotesk,sans-serif">4 active circles</h3>
-        <button class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Create circle</button>
+        <h3 id="myGroupsCount" style="color:var(--navy);font-family:Space Grotesk,sans-serif">Loading…</h3>
+        <button class="btn btn-primary btn-sm" id="openCreateGroupBtn"><i class="fa-solid fa-plus"></i> Create circle</button>
       </div>
-      <div class="groups-grid">
-        <div class="group-card"><div class="head"><div><h3>Family Njangi</h3><div class="meta">Monthly · XAF 40,000</div></div><span class="chip gold">Organiser</span></div><div class="meta" style="margin-bottom:6px">Position 7 / 12</div><div class="progress-bar" style="margin:0 0 14px"><div class="progress-fill" style="width:58%"></div></div><div style="display:flex;gap:8px"><button class="btn btn-dark btn-sm" style="flex:1;justify-content:center">View</button><button class="btn btn-outline btn-sm" style="flex:1;justify-content:center">Contribute</button></div></div><div class="group-card"><div class="head"><div><h3>Buea Traders Circle</h3><div class="meta">Weekly · XAF 25,000</div></div><span class="chip ">Member</span></div><div class="meta" style="margin-bottom:6px">Position 3 / 10</div><div class="progress-bar" style="margin:0 0 14px"><div class="progress-fill" style="width:30%"></div></div><div style="display:flex;gap:8px"><button class="btn btn-dark btn-sm" style="flex:1;justify-content:center">View</button><button class="btn btn-outline btn-sm" style="flex:1;justify-content:center">Contribute</button></div></div><div class="group-card"><div class="head"><div><h3>Tech Bros Njangi</h3><div class="meta">Monthly · XAF 100,000</div></div><span class="chip ">Member</span></div><div class="meta" style="margin-bottom:6px">Position 1 / 8</div><div class="progress-bar" style="margin:0 0 14px"><div class="progress-fill" style="width:12%"></div></div><div style="display:flex;gap:8px"><button class="btn btn-dark btn-sm" style="flex:1;justify-content:center">View</button><button class="btn btn-outline btn-sm" style="flex:1;justify-content:center">Contribute</button></div></div><div class="group-card"><div class="head"><div><h3>Diaspora Sisters</h3><div class="meta">Monthly · XAF 200,000</div></div><span class="chip gold">Organiser</span></div><div class="meta" style="margin-bottom:6px">Position 5 / 6</div><div class="progress-bar" style="margin:0 0 14px"><div class="progress-fill" style="width:83%"></div></div><div style="display:flex;gap:8px"><button class="btn btn-dark btn-sm" style="flex:1;justify-content:center">View</button><button class="btn btn-outline btn-sm" style="flex:1;justify-content:center">Contribute</button></div></div>
+      <div class="groups-grid" id="myGroupsGrid">
+        <div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><h3>Loading your circles…</h3></div>
       </div>
     </div>
 
     <div data-tab="discover" style="display:none">
-      <div class="groups-grid">
-        <div class="group-card"><div class="head"><div><h3>Bamenda Women Trust</h3><div class="meta">Weekly · XAF 10,000</div></div><span class="chip">Public</span></div><div class="meta" style="margin-bottom:6px">Open · 6 / 12 spots</div><div class="progress-bar" style="margin:0 0 14px"><div class="progress-fill" style="width:50%"></div></div><button class="btn btn-primary btn-sm" style="width:100%;justify-content:center">Request to join</button></div><div class="group-card"><div class="head"><div><h3>Yaoundé Civil Servants</h3><div class="meta">Monthly · XAF 50,000</div></div><span class="chip">Public</span></div><div class="meta" style="margin-bottom:6px">Open · 14 / 20 spots</div><div class="progress-bar" style="margin:0 0 14px"><div class="progress-fill" style="width:70%"></div></div><button class="btn btn-primary btn-sm" style="width:100%;justify-content:center">Request to join</button></div><div class="group-card"><div class="head"><div><h3>Limbe Beach Friends</h3><div class="meta">Monthly · XAF 30,000</div></div><span class="chip">Public</span></div><div class="meta" style="margin-bottom:6px">Open · 4 / 8 spots</div><div class="progress-bar" style="margin:0 0 14px"><div class="progress-fill" style="width:50%"></div></div><button class="btn btn-primary btn-sm" style="width:100%;justify-content:center">Request to join</button></div>
+      <div class="groups-grid" id="discoverGrid">
+        <div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><h3>Loading public circles…</h3></div>
       </div>
     </div>
 
     <div data-tab="invites" style="display:none">
-      <div class="groups-grid">
-        <div class="group-card"><h3>Douala Boys Tontine</h3><div class="meta" style="margin:6px 0">Invited by Tabi Eric</div><div class="meta">Monthly · XAF 75,000</div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn btn-primary btn-sm" style="flex:1;justify-content:center">Accept</button><button class="btn btn-outline btn-sm" style="flex:1;justify-content:center">Decline</button></div></div><div class="group-card"><h3>SW Region Mamis</h3><div class="meta" style="margin:6px 0">Invited by Mami Ngono</div><div class="meta">Weekly · XAF 15,000</div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn btn-primary btn-sm" style="flex:1;justify-content:center">Accept</button><button class="btn btn-outline btn-sm" style="flex:1;justify-content:center">Decline</button></div></div>
+      <div class="groups-grid" id="invitesGrid">
+        <div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><h3>Loading invites…</h3></div>
       </div>
     </div>
   </div>
 </main></div>
-<script src="js/app.js"></script></body></html>
+
+<div class="modal-overlay" id="createGroupModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeCreateGroupModal()"><i class="fa-solid fa-xmark"></i></button>
+    <h2>Create a Njangi circle</h2>
+    <div class="sub">Set up your contribution rules. You'll be the Circle Admin.</div>
+    <form id="createGroupForm">
+      <div class="field">
+        <label>Circle name</label>
+        <input type="text" id="cg-name" placeholder="e.g. Family Njangi" required maxlength="100">
+      </div>
+      <div class="field">
+        <label>Description (optional)</label>
+        <input type="text" id="cg-description" placeholder="What is this circle for?">
+      </div>
+      <div class="field">
+        <label>Visibility</label>
+        <div class="visibility-toggle">
+          <button type="button" class="active" data-visibility="private" onclick="selectVisibility('private')"><i class="fa-solid fa-lock"></i> Private</button>
+          <button type="button" data-visibility="public" onclick="selectVisibility('public')"><i class="fa-solid fa-globe"></i> Public</button>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Contribution amount (XAF)</label>
+          <input type="number" id="cg-amount" placeholder="25000" min="1" required>
+        </div>
+        <div class="field">
+          <label>Frequency</label>
+          <select id="cg-frequency" required>
+            <option value="monthly">Monthly</option>
+            <option value="weekly">Weekly</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Maximum members</label>
+        <input type="number" id="cg-maxmembers" placeholder="10" min="2" required>
+      </div>
+      <div class="field-error" id="cg-error"></div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:6px" id="cg-submit-btn">
+        Create circle
+      </button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="contributeModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeContributeModal()"><i class="fa-solid fa-xmark"></i></button>
+    <h2>Make a contribution</h2>
+    <div class="sub" id="contribute-group-name">—</div>
+    <div id="contributeList">
+      <div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><h3>Loading…</h3></div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/user.js"></script>
+<script src="../js/circles.js"></script>
+<script src="../js/app.js"></script>
+<script src="../js/groups-page.js"></script>
+</body></html>

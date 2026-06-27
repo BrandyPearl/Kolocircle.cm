@@ -1,0 +1,58 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Circle Details · KoloCircle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="../css/styles.css"></head><body>
+<div class="dash">
+<aside class="sidebar">
+  <a href="index.html" class="brand"><span class="brand-mark"><span>KC</span></span> KoloCircle</a>
+  <ul class="side-nav">
+    <li><a href="dashboard.html"><span class="ic"><i class="fa-solid fa-grid-2"></i></span> Overview</a></li>
+    <li><a href="wallet.html"><span class="ic"><i class="fa-solid fa-wallet"></i></span> Wallet</a></li>
+    <li><a href="groups.html" class="active"><span class="ic"><i class="fa-solid fa-users"></i></span> My Groups</a></li>
+    <li><a href="transactions.html"><span class="ic"><i class="fa-solid fa-arrow-right-arrow-left"></i></span> Transactions</a></li>
+    <li><a href="verification.html"><span class="ic"><i class="fa-solid fa-shield-halved"></i></span> Verification</a></li>
+    <li><a href="blog.html"><span class="ic"><i class="fa-solid fa-newspaper"></i></span> Blog</a></li>
+    <li><a href="#" onclick="logout()"><span class="ic"><i class="fa-solid fa-arrow-right-from-bracket"></i></span> Sign out</a></li>
+  </ul>
+</aside>
+<main class="dash-main">
+
+<div class="dash-topbar">
+  <div>
+    <a href="groups.html" style="color:var(--muted);font-size:.85rem;text-decoration:none"><i class="fa-solid fa-arrow-left"></i> Back to My Groups</a>
+  </div>
+  <div class="profile-chip">
+    <div class="av" id="profileInitials">--</div>
+    <div>
+      <div style="font-size:.85rem;font-weight:600" id="welcomeName">Loading…</div>
+      <div style="font-size:.72rem;color:var(--muted)" id="profileLocation"></div>
+    </div>
+  </div>
+</div>
+
+<div id="circleContent">
+  <div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><h3>Loading circle…</h3></div>
+</div>
+
+</main></div>
+
+<div class="modal-overlay" id="contributeModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeContributeModal()"><i class="fa-solid fa-xmark"></i></button>
+    <h2>Make a contribution</h2>
+    <div class="sub" id="contribute-group-name">—</div>
+    <div id="contributeList">
+      <div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><h3>Loading…</h3></div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/user.js"></script>
+<script src="../js/circles.js"></script>
+<script src="../js/app.js"></script>
+<script src="../js/circle-page.js"></script>
+</body></html>
