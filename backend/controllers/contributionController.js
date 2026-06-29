@@ -1,5 +1,7 @@
+// PLACE AT: backend/controllers/contributionController.js
 import pool from '../config/db.js';
-import { createLedgerEntry } from '../services/ledgerService.js';
+import { transferBetweenWallets } from '../services/ledgerService.js';
+
 
 export const getMyContributions = async (req, res) => {
   try {
@@ -25,20 +27,19 @@ export const getMyContributions = async (req, res) => {
   }
 };
 
-// contribution rules
 export const markContributionPaid = async (req, res) => {
   const connection = await pool.getConnection();
   try {
     const userId = req.userId;
     const { contributionId } = req.params;
-    const { momoReferenceId } = req.body;
 
     const [contribRows] = await pool.query(
       `SELECT c.id, c.cycle_member_id, c.amount, c.contribution_round, c.status,
-              cm.cycle_id, gm.user_id AS member_user_id
+              cm.cycle_id, gm.user_id AS member_user_id, cy.group_id
        FROM contributions c
        JOIN cycle_members cm ON c.cycle_member_id = cm.id
        JOIN group_members gm ON cm.membership_id = gm.id
+       JOIN cycles cy ON cm.cycle_id = cy.id
        WHERE c.id = ?`,
       [contributionId]
     );
@@ -57,6 +58,17 @@ export const markContributionPaid = async (req, res) => {
       return res.status(409).json({ error: 'This contribution has already been paid' });
     }
 
+   
+    const [walletRows] = await pool.query('SELECT balance FROM wallets WHERE user_id = ?', [userId]);
+    const currentBalance = walletRows.length ? parseFloat(walletRows[0].balance) : 0;
+    if (currentBalance < contribution.amount) {
+      return res.status(402).json({
+        error: 'Insufficient wallet balance for this contribution. Please top up your wallet first.',
+        currentBalance,
+        required: contribution.amount
+      });
+    }
+
     await connection.beginTransaction();
 
     await connection.query(
@@ -64,21 +76,23 @@ export const markContributionPaid = async (req, res) => {
       [contributionId]
     );
 
-    // Contribution = a debit on the paying member's wallet.
-    await createLedgerEntry(connection, {
+    // Contribution = personal wallet (debit) -> group wallet (credit, escrow)
+    await transferBetweenWallets(connection, {
       userId,
+      groupId: contribution.group_id,
       entryType: 'contribution',
-      amount: -contribution.amount,
+      direction: 'debit',
+      amount: contribution.amount,
       referenceTable: 'contributions',
       referenceId: contribution.id
     });
 
-    const payoutResult = await tryProcessRoundPayout(connection, contribution.cycle_id, contribution.contribution_round);
+    const payoutResult = await tryProcessRoundPayout(connection, contribution.cycle_id, contribution.group_id, contribution.contribution_round);
 
     await connection.commit();
 
     res.json({
-      message: 'Contribution marked as paid',
+      message: 'Contribution paid from wallet balance',
       contributionId: contribution.id,
       round: contribution.contribution_round,
       payoutTriggered: payoutResult.triggered,
@@ -93,8 +107,8 @@ export const markContributionPaid = async (req, res) => {
   }
 };
 
-// payout trigger 
-async function tryProcessRoundPayout(connection, cycleId, round) {
+
+async function tryProcessRoundPayout(connection, cycleId, groupId, round) {
   const [incompleteRows] = await connection.query(
     `SELECT COUNT(*) AS count
      FROM contributions c
@@ -134,9 +148,11 @@ async function tryProcessRoundPayout(connection, cycleId, round) {
     [payout.id]
   );
 
-  await createLedgerEntry(connection, {
+  await transferBetweenWallets(connection, {
     userId: payout.beneficiary_user_id,
+    groupId,
     entryType: 'payout',
+    direction: 'credit',
     amount: payout.amount,
     referenceTable: 'payout_cycles',
     referenceId: payout.id

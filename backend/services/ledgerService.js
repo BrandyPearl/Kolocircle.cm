@@ -1,56 +1,84 @@
-/**
- * Records a financial event: writes one ledger_entries row and updates
- * the corresponding wallet balance, both within the caller's existing
- * transaction.
- *
- * @param {object} connection  an active transaction connection (NOT the pool)
- * @param {object} params
- * @param {number} params.userId  whose wallet this affects
- * @param {('contribution'|'payout'|'deposit'|'withdrawal')} params.entryType
- * @param {number} params.amount positive for credits (payout, deposit),
- *                                  negative for debits (contribution, withdrawal)
- * @param {string} params.referenceTable e.g. 'contributions', 'payout_cycles'
- * @param {number} params.referenceId the id of the row in referenceTable
- * @returns {Promise<{ledgerEntryId: number, walletId: number, balanceAfter: number}>}
- */
-export async function createLedgerEntry(connection, { userId, entryType, amount, referenceTable, referenceId }) {
-  
-  let [walletRows] = await connection.query(
-    'SELECT id, balance FROM wallets WHERE user_id = ?',
-    [userId]
-  );
 
-  let walletId;
-  if (walletRows.length === 0) {
-    const [createResult] = await connection.query(
-      'INSERT INTO wallets (user_id, balance) VALUES (?, 0.00)',
-      [userId]
-    );
-    walletId = createResult.insertId;
-    walletRows = [{ id: walletId, balance: 0 }];
-  } else {
-    walletId = walletRows[0].id;
+async function getOrCreatePersonalWallet(connection, userId) {
+  let [rows] = await connection.query('SELECT id, balance FROM wallets WHERE user_id = ?', [userId]);
+  if (rows.length === 0) {
+    const [result] = await connection.query('INSERT INTO wallets (user_id, balance) VALUES (?, 0.00)', [userId]);
+    return { id: result.insertId, balance: 0 };
   }
+  return { id: rows[0].id, balance: parseFloat(rows[0].balance) };
+}
 
-  const currentBalance = parseFloat(walletRows[0].balance);
-  const balanceAfter = currentBalance + amount;
+async function getOrCreateGroupWallet(connection, groupId) {
+  let [rows] = await connection.query('SELECT id, balance FROM group_wallets WHERE group_id = ?', [groupId]);
+  if (rows.length === 0) {
+    const [result] = await connection.query('INSERT INTO group_wallets (group_id, balance) VALUES (?, 0.00)', [groupId]);
+    return { id: result.insertId, balance: 0 };
+  }
+  return { id: rows[0].id, balance: parseFloat(rows[0].balance) };
+}
+
+async function writeEntry(connection, { walletId, groupWalletId, entryType, direction, amount, referenceTable, referenceId }) {
+  const isGroup = groupWalletId != null;
+  const table = isGroup ? 'group_wallets' : 'wallets';
+  const idCol = isGroup ? 'group_wallet_id' : 'wallet_id';
+  const targetId = isGroup ? groupWalletId : walletId;
+
+  const [rows] = await connection.query(`SELECT balance FROM ${table} WHERE id = ?`, [targetId]);
+  const currentBalance = parseFloat(rows[0].balance);
+  const signedAmount = direction === 'credit' ? Math.abs(amount) : -Math.abs(amount);
+  const balanceAfter = currentBalance + signedAmount;
 
   if (balanceAfter < 0) {
-    throw new Error(`Ledger entry would drive wallet ${walletId} negative (current: ${currentBalance}, delta: ${amount})`);
+    throw new Error(`${table} ${targetId} would go negative (current: ${currentBalance}, delta: ${signedAmount})`);
   }
 
   const [ledgerResult] = await connection.query(
-    `INSERT INTO ledger_entries (wallet_id, entry_type, amount, reference_table, reference_id, balance_after)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [walletId, entryType, amount, referenceTable, referenceId, balanceAfter]
+    `INSERT INTO ledger_entries (${idCol}, entry_type, direction, amount, reference_table, reference_id, balance_after)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [targetId, entryType, direction, Math.abs(amount), referenceTable, referenceId, balanceAfter]
   );
 
-  await connection.query(
-    'UPDATE wallets SET balance = ? WHERE id = ?',
-    [balanceAfter, walletId]
-  );
+  await connection.query(`UPDATE ${table} SET balance = ? WHERE id = ?`, [balanceAfter, targetId]);
 
-  return { ledgerEntryId: ledgerResult.insertId, walletId, balanceAfter };
+  return { ledgerEntryId: ledgerResult.insertId, balanceAfter };
 }
 
-export default { createLedgerEntry };
+
+export async function recordWalletMomoMovement(connection, { userId, entryType, direction, amount, referenceTable, referenceId }) {
+  const wallet = await getOrCreatePersonalWallet(connection, userId);
+  const result = await writeEntry(connection, {
+    walletId: wallet.id, groupWalletId: null,
+    entryType, direction, amount, referenceTable, referenceId
+  });
+  return { walletId: wallet.id, ...result };
+}
+
+export async function transferBetweenWallets(connection, {
+  userId, groupId, entryType, direction, amount, referenceTable, referenceId
+}) {
+  const personalWallet = await getOrCreatePersonalWallet(connection, userId);
+  const groupWallet = await getOrCreateGroupWallet(connection, groupId);
+
+  
+  const personalDirection = direction;
+  const groupDirection = direction === 'debit' ? 'credit' : 'debit';
+
+  const personalResult = await writeEntry(connection, {
+    walletId: personalWallet.id, groupWalletId: null,
+    entryType, direction: personalDirection, amount, referenceTable, referenceId
+  });
+
+  const groupResult = await writeEntry(connection, {
+    walletId: null, groupWalletId: groupWallet.id,
+    entryType, direction: groupDirection, amount, referenceTable, referenceId
+  });
+
+  return {
+    personalWalletId: personalWallet.id,
+    personalBalanceAfter: personalResult.balanceAfter,
+    groupWalletId: groupWallet.id,
+    groupBalanceAfter: groupResult.balanceAfter
+  };
+}
+
+export default { recordWalletMomoMovement, transferBetweenWallets };
