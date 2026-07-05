@@ -17,7 +17,8 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from frontend
+// Serve static files from frontend directory
+// This makes /css, /js, etc. accessible from the root
 app.use(express.static(path.join(__dirname, "../../frontend")));
 
 import authRoutes from "../routes/auth_routes.js";
@@ -38,9 +39,23 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// Serve index.html for root and unmatched routes (SPA fallback)
+// Serve HTML pages - must come after API routes
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../../frontend/html/index.html"));
+});
+
+// Catch-all for other HTML pages (about, services, etc.)
+app.get("/:page", (req, res) => {
+  const page = req.params.page;
+  // Only serve .html files, reject anything with dots (to avoid serving other files)
+  if (page.includes(".")) {
+    return res.status(404).send("Not found");
+  }
+  res.sendFile(path.join(__dirname, `../../frontend/html/${page}.html`), (err) => {
+    if (err) {
+      res.status(404).send("Page not found");
+    }
+  });
 });
 
 const PORT = process.env.PORT || 5000;
