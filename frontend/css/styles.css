@@ -515,3 +515,71 @@ section.block{padding:80px 0}
 .roster-table th{text-align:left;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--line)}
 .roster-table td{padding:12px 14px;border-bottom:1px solid var(--line);font-size:.9rem}
 .roster-table tr:last-child td{border-bottom:none}
+
+/* wallet page */
+.kpi .v.masked{letter-spacing:2px}
+.method-select{display:flex;gap:10px;margin-bottom:18px}
+.method-select button{flex:1;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--white);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:600;color:var(--muted);transition:.15s}
+.method-select button.active{border-color:var(--gold);background:rgba(253,190,52,.1);color:var(--navy)}
+.method-select button img,.method-select button .logo{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:var(--white);text-align:center;line-height:1.1}
+.send-circle-pick{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:.15s}
+.send-circle-pick:hover{border-color:var(--gold);background:rgba(253,190,52,.06)}
+
+.logo.mtn{background:#ffcc00;color:#1a1a1a}
+.logo.orange{background:#ff6600;color:#fff}
+
+/* Responsive adjustments for all pages */
+@media (max-width:1200px){
+  .container{padding:0 18px}
+  .hero-grid,.about-grid,.feature-grid,.services-grid,.stats-grid,.partners-grid,.blog-grid,.groups-grid{grid-template-columns:1fr 1fr}
+  .split-2{grid-template-columns:1fr}
+  .banner{flex-direction:column;align-items:flex-start}
+  .banner h4{margin-bottom:12px}
+  .search{max-width:100%}
+  .profile-chip{flex-wrap:wrap;justify-content:flex-end}
+  .dash-topbar{flex-direction:column;align-items:flex-start}
+  .dash-topbar .search{width:100%;max-width:none}
+}
+
+@media (max-width:900px){
+  .hero-grid,.about-grid,.feature-grid,.testi-stack,.services-grid,.steps,.stats-grid,.partners-grid,.blog-grid,.groups-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr}
+  .cta-block{padding:40px 24px}
+  .card{padding:18px}
+  .dash-main{padding:18px 16px}
+  .side-nav{flex-direction:row;flex-wrap:wrap;justify-content:center}
+  .search{padding:10px 14px}
+  .search input{font-size:.95rem}
+  .profile-chip{padding:8px 12px}
+  .profile-chip .av{width:32px;height:32px}
+  .auth-side,.auth-form{padding:24px}
+  .modal-box{max-width:92%;padding:24px}
+  .field-row,.visibility-toggle,.method-select{display:grid;grid-template-columns:1fr;gap:10px}
+  .method-select{gap:10px}
+  .method-select button{width:100%}
+}
+
+@media (max-width:700px){
+  .hero{padding:60px 20px}
+  .hero-grid{gap:30px}
+  .dash-topbar{gap:12px}
+  .cta-block{padding:32px 20px}
+  .profile-chip{width:100%;justify-content:flex-start}
+  .side-nav a{flex:1 1 calc(50% - 10px);justify-content:center}
+}
+
+@media (max-width:560px){
+  .container{padding:0 14px}
+  .site-header .nav{flex-wrap:wrap}
+  .nav-links.open,.nav-cta.open{padding:16px}
+  .btn{padding:10px 18px;font-size:.9rem}
+  .card{padding:16px}
+  .table{display:block;width:100%;overflow-x:auto}
+  .table thead,.table tbody,.table tr{display:table;width:100%;table-layout:fixed}
+  .table th,.table td{padding:12px 10px}
+  .field input,.field select{padding:12px 14px}
+  .kpi-grid{grid-template-columns:1fr}
+  .banner{padding:16px}
+  .cta-block{padding:28px 20px}
+  .faq-q{font-size:1rem}
+}

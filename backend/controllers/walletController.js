@@ -213,10 +213,13 @@ export const initiateWithdrawal = async (req, res) => {
       return res.status(402).json({ error: 'Insufficient wallet balance', currentBalance: balance, requested: amount });
     }
 
-    
     const momoResult = await initiatePayment(phoneNumber, amount, userId);
     const referenceId = momoResult.referenceId;
 
+    // Note: the wallet is intentionally NOT debited here. The debit now
+    // happens in the Fapshi webhook handler, only once the payout is
+    // confirmed successful. This closes the old gap where a failed payout
+    // left the member's wallet debited with no reversal.
     const connection = await pool.getConnection();
     try {
       await connection.beginTransaction();
@@ -225,15 +228,6 @@ export const initiateWithdrawal = async (req, res) => {
         'INSERT INTO wallet_withdrawals (user_id, amount, operator, momo_reference_id, status) VALUES (?, ?, ?, ?, ?)',
         [userId, amount, operator, referenceId, 'pending']
       );
-
-      await recordWalletMomoMovement(connection, {
-        userId,
-        entryType: 'withdrawal',
-        direction: 'debit',
-        amount,
-        referenceTable: 'wallet_withdrawals',
-        referenceId: result.insertId
-      });
 
       await connection.commit();
 
@@ -257,10 +251,100 @@ export const initiateWithdrawal = async (req, res) => {
   }
 };
 
+export const getWalletTransactions = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const [walletRows] = await pool.query('SELECT id FROM wallets WHERE user_id = ?', [userId]);
+    if (!walletRows.length) {
+      return res.json({ transactions: [] });
+    }
+
+    const walletId = walletRows[0].id;
+    const [rows] = await pool.query(
+      `SELECT le.id, le.entry_type, le.direction, le.amount, le.created_at,
+              wt.operator AS topup_operator, wt.status AS topup_status,
+              ww.operator AS withdrawal_operator, ww.status AS withdrawal_status,
+              c.contribution_round, c.status AS contribution_status,
+              g.group_name AS contribution_group,
+              pc.payout_round, pc.status AS payout_status,
+              gp.group_name AS payout_group
+       FROM ledger_entries le
+       LEFT JOIN wallet_topups wt ON le.reference_table = 'wallet_topups' AND le.reference_id = wt.id
+       LEFT JOIN wallet_withdrawals ww ON le.reference_table = 'wallet_withdrawals' AND le.reference_id = ww.id
+       LEFT JOIN contributions c ON le.reference_table = 'contributions' AND le.reference_id = c.id
+       LEFT JOIN payout_cycles pc ON le.reference_table = 'payout_cycles' AND le.reference_id = pc.id
+       LEFT JOIN cycle_members cm_contrib ON c.cycle_member_id = cm_contrib.id
+       LEFT JOIN group_members gm_contrib ON cm_contrib.membership_id = gm_contrib.id
+       LEFT JOIN njangi_groups g ON gm_contrib.group_id = g.id
+       LEFT JOIN cycle_members cm_payout ON pc.cycle_member_id = cm_payout.id
+       LEFT JOIN group_members gm_payout ON cm_payout.membership_id = gm_payout.id
+       LEFT JOIN njangi_groups gp ON gm_payout.group_id = gp.id
+       WHERE le.wallet_id = ?
+       ORDER BY le.created_at DESC`,
+      [walletId]
+    );
+
+    const transactions = rows.map(row => {
+      let type = 'Other';
+      let method = 'KoloCircle';
+      let status = 'Successful';
+      let description = 'Wallet activity';
+
+      if (row.entry_type === 'topup') {
+        type = 'Top up';
+        method = row.topup_operator ? `${row.topup_operator} Money` : 'Mobile Money';
+        status = row.topup_status ? capitalize(row.topup_status) : 'Pending';
+        description = 'Wallet top up';
+      } else if (row.entry_type === 'withdrawal') {
+        type = 'Withdrawal';
+        method = row.withdrawal_operator ? `${row.withdrawal_operator} Money` : 'Mobile Money';
+        status = row.withdrawal_status ? capitalize(row.withdrawal_status) : 'Pending';
+        description = 'Withdrawal to Mobile Money';
+      } else if (row.entry_type === 'contribution') {
+        type = 'Contribution';
+        method = 'KoloCircle wallet';
+        status = row.contribution_status ? capitalize(row.contribution_status) : 'Successful';
+        description = row.contribution_group ? `Contribution ${row.contribution_group}` : 'Contribution';
+      } else if (row.entry_type === 'payout') {
+        type = 'Payout';
+        method = 'KoloCircle';
+        status = row.payout_status ? capitalize(row.payout_status) : 'Successful';
+        description = row.payout_group ? `Payout received ${row.payout_group}` : 'Payout received';
+      } else if (row.entry_type === 'deposit') {
+        type = 'Deposit';
+        method = 'KoloCircle';
+        status = 'Successful';
+        description = 'Security deposit';
+      }
+
+      return {
+        id: row.id,
+        date: row.created_at,
+        type,
+        method,
+        status,
+        description,
+        amount: Number(row.amount),
+        direction: row.direction
+      };
+    });
+
+    res.json({ transactions });
+  } catch (error) {
+    console.error('Error fetching wallet transactions:', error);
+    res.status(500).json({ error: 'Failed to fetch transactions' });
+  }
+};
+
+function capitalize(value) {
+  return String(value || '').replace(/\b\w/g, char => char.toUpperCase());
+}
+
 export default {
   getWalletOverview,
   getWeeklyActivity,
   initiateTopup,
   checkTopupStatus,
-  initiateWithdrawal
+  initiateWithdrawal,
+  getWalletTransactions
 };

@@ -2,6 +2,7 @@ import pool from '../config/db.js';
 import crypto from 'crypto';
 // group creation, listing, and details
 export const createGroup = async (req, res) => {
+  const connection = await pool.getConnection();
   try {
     const userId = req.userId;
     const {
@@ -38,12 +39,23 @@ export const createGroup = async (req, res) => {
     // for the private_link join path.
     const inviteToken = crypto.randomBytes(16).toString('hex'); // 32 chars, matches CHAR(32)
 
-    const [result] = await pool.query(
+    await connection.beginTransaction();
+
+    const [result] = await connection.query(
       `INSERT INTO njangi_groups
        (creator_id, group_name, description, visibility, invite_token, contribution_amount, contribution_frequency, max_members)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [userId, groupName, description || null, visibility, inviteToken, contributionAmount, contributionFrequency, maxMembers]
     );
+
+    // Confirmed decision: every circle gets its own escrow wallet,
+    // created automatically and atomically with the group itself.
+    await connection.query(
+      `INSERT INTO group_wallets (group_id, balance) VALUES (?, 0.00)`,
+      [result.insertId]
+    );
+
+    await connection.commit();
 
     res.status(201).json({
       message: 'Circle created successfully',
@@ -59,11 +71,13 @@ export const createGroup = async (req, res) => {
       }
     });
   } catch (error) {
+    await connection.rollback();
     console.error('Error creating group:', error);
     res.status(500).json({ error: 'Failed to create circle' });
+  } finally {
+    connection.release();
   }
 };
-
 // view all public groups (no auth required)
 export const listPublicGroups = async (req, res) => {
   try {

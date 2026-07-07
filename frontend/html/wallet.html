@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Wallet — KoloCircle</title><meta name="description" content="Manage your KoloCircle wallet">
+<title>Wallet · KoloCircle</title><meta name="description" content="Manage your KoloCircle wallet">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -9,63 +9,156 @@
 <aside class="sidebar">
   <a href="index.html" class="brand"><span class="brand-mark"><span>KC</span></span> KoloCircle</a>
   <ul class="side-nav">
-    <li><a href="dashboard.html" class=""><span class="ic"><i class="fa-solid fa-grid-2"></i></span> Overview</a></li>
+    <li><a href="dashboard.html"><span class="ic"><i class="fa-solid fa-grid-2"></i></span> Overview</a></li>
     <li><a href="wallet.html" class="active"><span class="ic"><i class="fa-solid fa-wallet"></i></span> Wallet</a></li>
-    <li><a href="groups.html" class=""><span class="ic"><i class="fa-solid fa-users"></i></span> My Groups</a></li>
-    <li><a href="transactions.html" class=""><span class="ic"><i class="fa-solid fa-arrow-right-arrow-left"></i></span> Transactions</a></li>
-    <li><a href="#" class=""><span class="ic"><i class="fa-solid fa-shield-halved"></i></span> Verification</a></li>
+    <li><a href="groups.html"><span class="ic"><i class="fa-solid fa-users"></i></span> My Groups</a></li>
+    <li><a href="transactions.html"><span class="ic"><i class="fa-solid fa-arrow-right-arrow-left"></i></span> Transactions</a></li>
+    <li><a href="verification.html"><span class="ic"><i class="fa-solid fa-shield-halved"></i></span> Verification</a></li>
     <li><a href="blog.html"><span class="ic"><i class="fa-solid fa-newspaper"></i></span> Blog</a></li>
-    <li><a href="index.html"><span class="ic"><i class="fa-solid fa-arrow-right-from-bracket"></i></span> Sign out</a></li>
+    <li><a href="#" onclick="logout()"><span class="ic"><i class="fa-solid fa-arrow-right-from-bracket"></i></span> Sign out</a></li>
   </ul>
   <div class="side-foot">
     <strong>Need help?</strong>
-    Chat with our team in English, French or Pidgin — 24/7.
+    Chat with our team in English, French or Pidgin, available 24 hours a day.
   </div>
 </aside>
 <main class="dash-main">
-  
+
 <div class="dash-topbar">
   <div>
     <h1>My Wallet</h1>
-    <div class="sub">Top-up, contribute and withdraw — your money, your rules.</div>
+    <div class="sub">Top up, contribute and withdraw. Your money, your rules.</div>
   </div>
   <div class="search"><i class="fa-solid fa-magnifying-glass" style="color:var(--muted)"></i><input placeholder="Search circles, transactions..." /></div>
-  <div class="profile-chip"><div class="av">NE</div><div><div style="font-size:.85rem;font-weight:600">Ngwa Eric</div><div style="font-size:.72rem;color:var(--muted)">Buea, SW</div></div></div>
+  <div class="profile-chip">
+    <div class="av" id="profileInitials">--</div>
+    <div>
+      <div style="font-size:.85rem;font-weight:600" id="welcomeName">Loading…</div>
+      <div style="font-size:.72rem;color:var(--muted)" id="profileLocation"></div>
+    </div>
+  </div>
 </div>
+
   <div class="kpi-grid">
-    <div class="kpi dark"><div class="label">Available balance</div><div class="v" data-balance>XAF 1,245,500</div><div class="delta" style="color:var(--gold)"><button data-toggle-balance style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:.82rem"><i class="fa-regular fa-eye"></i> Show / Hide</button></div></div>
-    <div class="kpi"><div class="label">Loaded (this month)</div><div class="v">XAF 320,000</div><div class="delta">3 top-ups</div></div>
-    <div class="kpi"><div class="label">Contributed</div><div class="v">XAF 165,000</div><div class="delta">4 circles</div></div>
-    <div class="kpi gold"><div class="label">Received</div><div class="v">XAF 480,000</div><div class="delta" style="color:var(--navy-700)">1 payout this month</div></div>
+    <div class="kpi dark">
+      <div class="label">Available balance</div>
+      <div class="v" id="balanceValue">XAF •••••</div>
+      <div class="delta" style="color:var(--gold)">
+        <button id="toggleBalanceBtn" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:.82rem">
+          <i class="fa-regular fa-eye" id="toggleBalanceIcon"></i> <span id="toggleBalanceLabel">Show balance</span>
+        </button>
+      </div>
+    </div>
+    <div class="kpi">
+      <div class="label">Loaded this month</div>
+      <div class="v" id="topupValue">XAF 0</div>
+      <div class="delta" id="topupCount">0 top ups</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Contributed this month</div>
+      <div class="v" id="contributionValue">XAF 0</div>
+      <div class="delta" id="contributionCount">0 contributions</div>
+    </div>
+    <div class="kpi gold">
+      <div class="label">Received this month</div>
+      <div class="v" id="payoutValue">XAF 0</div>
+      <div class="delta" style="color:var(--navy-700)" id="payoutCount">0 payouts</div>
+    </div>
   </div>
 
   <div class="split-2">
     <div class="card">
       <h3>Quick actions</h3>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">
-        <button class="btn btn-primary" style="justify-content:center"><i class="fa-solid fa-plus"></i> Top up</button>
-        <button class="btn btn-dark" style="justify-content:center"><i class="fa-solid fa-paper-plane"></i> Send</button>
-        <button class="btn btn-outline" style="justify-content:center"><i class="fa-solid fa-arrow-down"></i> Withdraw</button>
-        <button class="btn btn-outline" style="justify-content:center"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
+        <button class="btn btn-primary" style="justify-content:center" id="openTopupBtn"><i class="fa-solid fa-plus"></i> Top up</button>
+        <button class="btn btn-dark" style="justify-content:center" id="openSendBtn"><i class="fa-solid fa-paper-plane"></i> Send</button>
+        <button class="btn btn-outline" style="justify-content:center" id="openWithdrawBtn"><i class="fa-solid fa-arrow-down"></i> Withdraw</button>
+        <button class="btn btn-outline" style="justify-content:center" onclick="window.location.href='transactions.html'"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
       </div>
 
-      <h3 style="margin-top:28px">Linked payment methods</h3>
-      <div class="method"><div class="logo mtn">MTN<br>MoMo</div><div style="flex:1"><strong>MTN Mobile Money</strong><small>+237 67* *** *45 · Primary</small></div><span class="chip gold">Default</span></div>
-      <div class="method"><div class="logo orange">Orange<br>Money</div><div style="flex:1"><strong>Orange Mobile Money</strong><small>+237 69* *** *12</small></div><span class="chip">Linked</span></div>
-      <div class="method"><div class="logo uba">UBA</div><div style="flex:1"><strong>UBA Cameroon</strong><small>•••• •••• •••• 4421</small></div><span class="chip">Linked</span></div>
-      <div class="method"><div class="logo afriland">Afriland</div><div style="flex:1"><strong>Afriland First Bank</strong><small>•••• •••• •••• 8810</small></div><span class="chip">Linked</span></div>
-      <div class="method"><div class="logo nfc">NFC</div><div style="flex:1"><strong>NFC Bank</strong><small>Add your account</small></div><a href="#" class="btn btn-outline btn-sm">Link</a></div>
+      <h3 style="margin-top:28px">Payment methods</h3>
+      <div class="method"><div class="logo mtn">MTN<br>MoMo</div><div style="flex:1"><strong>MTN Mobile Money</strong><small>Used for top ups and withdrawals</small></div><span class="chip gold">Available</span></div>
+      <div class="method"><div class="logo orange">Orange<br>Money</div><div style="flex:1"><strong>Orange Money</strong><small>Used for top ups and withdrawals</small></div><span class="chip">Available</span></div>
     </div>
 
     <div class="card">
       <h3>This week</h3>
-      <div class="bars" style="height:180px">
-        <div class="bar"><div class="col"><span class="a" style="height:60%"></span></div><small>Mon</small></div><div class="bar"><div class="col"><span class="a" style="height:40%"></span></div><small>Tue</small></div><div class="bar"><div class="col"><span class="a" style="height:75%"></span></div><small>Wed</small></div><div class="bar"><div class="col"><span class="a" style="height:30%"></span></div><small>Thu</small></div><div class="bar"><div class="col"><span class="a" style="height:80%"></span></div><small>Fri</small></div><div class="bar"><div class="col"><span class="a" style="height:55%"></span></div><small>Sat</small></div><div class="bar"><div class="col"><span class="a" style="height:45%"></span></div><small>Sun</small></div>
+      <div class="bars" style="height:180px" id="weeklyBars">
+        <div class="empty-state" style="padding:30px"><i class="fa-solid fa-spinner fa-spin"></i></div>
       </div>
       <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:.88rem;color:var(--muted)">
-        Net flow this week: <strong style="color:var(--success)">+ XAF 38,500</strong>
+        Net flow this week: <strong id="weeklyNetFlow">—</strong>
       </div>
     </div>
   </div>
 </main></div>
-<script src="js/app.js"></script></body></html>
+
+<div class="modal-overlay" id="topupModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('topupModal')"><i class="fa-solid fa-xmark"></i></button>
+    <h2>Top up wallet</h2>
+    <div class="sub">Load money into your KoloCircle wallet from Mobile Money.</div>
+    <form id="topupForm">
+      <div class="field"><label>Payment method</label>
+        <div class="method-select">
+          <button type="button" class="active" data-operator="MTN" onclick="selectOperator('topup','MTN')"><div class="logo mtn">MTN<br>MoMo</div> MTN MoMo</button>
+          <button type="button" data-operator="Orange" onclick="selectOperator('topup','Orange')"><div class="logo orange">Orange<br>Money</div> Orange Money</button>
+        </div>
+      </div>
+      <div class="field"><label>Phone number</label><input type="tel" id="topup-phone" placeholder="6XX XXX XXX" required pattern="6[0-9]{8}"></div>
+      <div class="field"><label>Amount (XAF)</label><input type="number" id="topup-amount" placeholder="10000" min="1" required></div>
+      <div class="field-error" id="topup-error"></div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:6px" id="topup-submit-btn">Top up</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="withdrawModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('withdrawModal')"><i class="fa-solid fa-xmark"></i></button>
+    <h2>Withdraw to Mobile Money</h2>
+    <div class="sub">Move money from your KoloCircle wallet to your Mobile Money account.</div>
+    <form id="withdrawForm">
+      <div class="field"><label>Payment method</label>
+        <div class="method-select">
+          <button type="button" class="active" data-operator="MTN" onclick="selectOperator('withdraw','MTN')"><div class="logo mtn">MTN<br>MoMo</div> MTN MoMo</button>
+          <button type="button" data-operator="Orange" onclick="selectOperator('withdraw','Orange')"><div class="logo orange">Orange<br>Money</div> Orange Money</button>
+        </div>
+      </div>
+      <div class="field"><label>Phone number</label><input type="tel" id="withdraw-phone" placeholder="6XX XXX XXX" required pattern="6[0-9]{8}"></div>
+      <div class="field"><label>Amount (XAF)</label><input type="number" id="withdraw-amount" placeholder="10000" min="1" required></div>
+      <div class="field-error" id="withdraw-error"></div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:6px" id="withdraw-submit-btn">Withdraw</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="sendModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('sendModal')"><i class="fa-solid fa-xmark"></i></button>
+    <h2>Send to a circle</h2>
+    <div class="sub">Pick a circle to make a contribution toward.</div>
+    <div id="sendCircleList">
+      <div class="empty-state" style="padding:30px"><i class="fa-solid fa-spinner fa-spin"></i></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="contributeModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('contributeModal')"><i class="fa-solid fa-xmark"></i></button>
+    <h2>Make a contribution</h2>
+    <div class="sub" id="contribute-group-name">—</div>
+    <div id="contributeList">
+      <div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><h3>Loading…</h3></div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/user.js"></script>
+<script src="../js/circles.js"></script>
+<script src="../js/wallet.js"></script>
+<script src="../js/app.js"></script>
+<script src="../js/wallet-page.js"></script>
+</body></html>

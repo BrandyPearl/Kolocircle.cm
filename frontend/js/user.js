@@ -1,7 +1,7 @@
 // KoloCircle - User Management System
 class UserManager {
   constructor() {
-    this.apiBaseUrl = 'http://localhost:5000/api/auth';
+    this.apiBaseUrl = 'http://localhost:3000/api/auth';
     this.storageKey = 'currentUser';
   }
 
@@ -22,6 +22,9 @@ class UserManager {
       }
 
       const data = await response.json();
+      if (data.user && data.token) {
+        data.user.token = data.token;
+      }
       return { success: true, data };
     } catch (error) {
       return { success: false, error: error.message };
@@ -45,6 +48,9 @@ class UserManager {
       }
 
       const data = await response.json();
+      if (data.user && data.token) {
+        data.user.token = data.token;
+      }
       return { success: true, data };
     } catch (error) {
       return { success: false, error: error.message };
@@ -52,11 +58,26 @@ class UserManager {
   }
 
   /**
+   * Login user with phone and password
+   */
+  getToken() {
+    const currentUser = this.getCurrentUser();
+    return currentUser?.token || null;
+  }
+
+  /**
    * Fetch user data from database by ID
    */
-  async fetchFromDatabase(userId) {
+  async fetchFromDatabase() {
     try {
-      const response = await fetch(`${this.apiBaseUrl}/user/${encodeURIComponent(userId)}`);
+      const token = this.getToken();
+      if (!token) {
+        return null;
+      }
+
+      const response = await fetch(`${this.apiBaseUrl}/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       
       if (!response.ok) {
         return null;

@@ -1,103 +1,89 @@
 import pool from '../config/db.js';
-import crypto from 'crypto';
 import { sendOTP, sendVerificationStatusUpdate } from '../utils/sms.js';
 import { generateToken } from '../middleware/auth.js';
-import dotenv from 'dotenv';
 
-dotenv.config();
+const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
-const generateOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+const normalizePhone = (raw) => {
+  if (!raw) return '';
+  const digits = raw.replace(/\D/g, '');
+  // strip leading country code (e.g., 237)
+  if (digits.startsWith('237')) return digits.slice(3);
+  return digits;
 };
 
 export const sendOTPCode = async (req, res) => {
   try {
-    const { phone, operator } = req.body;
+    const { phone: rawPhone, operator } = req.body;
 
-    if (!phone || !operator) {
-      return res.status(400).json({ error: 'Phone and operator are required' });
+    if (!rawPhone) return res.status(400).json({ error: 'Phone is required' });
+
+    const phone = normalizePhone(rawPhone);
+
+    // basic 9-digit validation (Cameroon numbers)
+    if (!/^\d{9}$/.test(phone)) {
+      return res.status(400).json({ error: 'Invalid phone format. Use 9 digits (e.g. 6XXXXXXXX)' });
     }
 
-    const phoneRegex = /^(6[0-9]{8})$/;
-    if (!phoneRegex.test(phone)) {
-      return res.status(400).json({ error: 'Invalid phone format. Must be 6XX XXX XXX' });
+    // find or create user
+    const [userRows] = await pool.query('SELECT id FROM users WHERE phone = ?', [phone]);
+    let userId;
+    if (!userRows.length) {
+      const [createRes] = await pool.query('INSERT INTO users (phone) VALUES (?)', [phone]);
+      userId = createRes.insertId;
+    } else {
+      userId = userRows[0].id;
     }
 
-    let user = await pool.query('SELECT id FROM users WHERE phone = $1', [phone]);
-    
-    if (user.rows.length === 0) {
-      const createResult = await pool.query(
-        'INSERT INTO users (phone) VALUES ($1) RETURNING id',
-        [phone]
-      );
-      user.rows = [{ id: createResult.rows[0].id }];
-    }
-
-    const userId = user.rows[0].id;
     const code = generateOTP();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     await pool.query(
-      'INSERT INTO otp_codes (user_id, phone, code, expires_at) VALUES ($1, $2, $3, $4)',
+      'INSERT INTO otp_codes (user_id, phone, code, expires_at) VALUES (?, ?, ?, ?)',
       [userId, phone, code, expiresAt]
     );
 
+    // send SMS (currently logs; replace with real provider keys in .env)
     await sendOTP(phone, code);
 
-    res.json({ 
-      message: 'OTP sent successfully',
-      phone: phone.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3')
-    });
+    return res.json({ message: 'OTP sent successfully', phone: phone.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3') });
   } catch (error) {
     console.error('Error sending OTP:', error);
-    res.status(500).json({ error: 'Failed to send OTP' });
+    return res.status(500).json({ error: 'Failed to send OTP' });
   }
 };
 
 export const verifyOTPCode = async (req, res) => {
   try {
-    const { phone, code } = req.body;
+    const { phone: rawPhone, code } = req.body;
 
-    if (!phone || !code) {
-      return res.status(400).json({ error: 'Phone and code are required' });
-    }
+    if (!rawPhone || !code) return res.status(400).json({ error: 'Phone and code are required' });
 
-    const codeRegex = /^[0-9]{6}$/;
-    if (!codeRegex.test(code)) {
-      return res.status(400).json({ error: 'Invalid OTP format. Must be 6 digits' });
-    }
+    const phone = normalizePhone(rawPhone);
+    if (!/^\d{9}$/.test(phone)) return res.status(400).json({ error: 'Invalid phone format' });
+    if (!/^\d{6}$/.test(code)) return res.status(400).json({ error: 'Invalid OTP format. Must be 6 digits' });
 
-    const userResult = await pool.query('SELECT id FROM users WHERE phone = $1', [phone]);
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    const [userRows] = await pool.query('SELECT id FROM users WHERE phone = ?', [phone]);
+    if (!userRows.length) return res.status(404).json({ error: 'User not found' });
+    const userId = userRows[0].id;
 
-    const userId = userResult.rows[0].id;
-
-    const otpResult = await pool.query(
-      'SELECT * FROM otp_codes WHERE user_id = $1 AND code = $2 AND used = false AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1',
+    const [otpRows] = await pool.query(
+      'SELECT id FROM otp_codes WHERE user_id = ? AND code = ? AND used = false AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1',
       [userId, code]
     );
 
-    if (otpResult.rows.length === 0) {
-      return res.status(400).json({ error: 'Invalid or expired OTP' });
-    }
+    if (!otpRows.length) return res.status(400).json({ error: 'Invalid or expired OTP' });
 
-    const otpId = otpResult.rows[0].id;
-    await pool.query('UPDATE otp_codes SET used = true WHERE id = $1', [otpId]);
-
-    await pool.query('UPDATE users SET phone_verified = true WHERE id = $1', [userId]);
+    const otpId = otpRows[0].id;
+    await pool.query('UPDATE otp_codes SET used = true WHERE id = ?', [otpId]);
+    await pool.query('UPDATE users SET phone_verified = true WHERE id = ?', [userId]);
 
     const token = generateToken(userId);
 
-    res.json({
-      message: 'Phone verified successfully',
-      token: token,
-      userId: userId
-    });
+    return res.json({ message: 'Phone verified successfully', token, userId });
   } catch (error) {
     console.error('Error verifying OTP:', error);
-    res.status(500).json({ error: 'Failed to verify OTP' });
+    return res.status(500).json({ error: 'Failed to verify OTP' });
   }
 };
 

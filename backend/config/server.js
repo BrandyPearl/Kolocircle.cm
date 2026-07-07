@@ -18,6 +18,8 @@ import guarantorRoutes from "../routes/guarantor_routes.js";
 import depositRoutes from "../routes/deposit_routes.js";
 import circleRoutes from "../routes/circle_routes.js";
 import contributionRoutes from "../routes/contribution_routes.js";
+import walletRoutes from "../routes/wallet_routes.js";
+import webhookRoutes from "../routes/webhook_routes.js";
 
 app.use("/api/auth", authRoutes);
 app.use("/api/verification", verificationRoutes);
@@ -25,6 +27,8 @@ app.use("/api/guarantor", guarantorRoutes);
 app.use("/api/deposit", depositRoutes);
 app.use("/api/groups", circleRoutes);
 app.use("/api", contributionRoutes);
+app.use("/api/wallet", walletRoutes);
+app.use("/api/webhooks", webhookRoutes);
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
