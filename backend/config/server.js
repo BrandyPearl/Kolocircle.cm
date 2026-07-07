@@ -1,8 +1,13 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -11,6 +16,10 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files from frontend directory
+// This makes /css, /js, etc. accessible from the root
+app.use(express.static(path.join(__dirname, "../../frontend")));
 
 import authRoutes from "../routes/auth_routes.js";
 import verificationRoutes from "../routes/verification_routes.js";
@@ -34,7 +43,27 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
+// Serve HTML pages - must come after API routes
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../frontend/html/index.html"));
+});
+
+// Catch-all for other HTML pages (about, services, etc.)
+app.get("/:page", (req, res) => {
+  const page = req.params.page;
+  // Only serve .html files, reject anything with dots (to avoid serving other files)
+  if (page.includes(".")) {
+    return res.status(404).send("Not found");
+  }
+  res.sendFile(path.join(__dirname, `../../frontend/html/${page}.html`), (err) => {
+    if (err) {
+      res.status(404).send("Page not found");
+    }
+  });
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Backend API running on http://localhost:${PORT}`);
 });
+
